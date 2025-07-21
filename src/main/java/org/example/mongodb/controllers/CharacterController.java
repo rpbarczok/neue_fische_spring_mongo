@@ -1,29 +1,43 @@
 package org.example.mongodb.controllers;
 
 import jakarta.websocket.server.PathParam;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.example.mongodb.repository.CharacterRepo;
+import org.springframework.web.bind.annotation.*;
 import org.example.mongodb.models.Character;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/asterix/characters")
 public class CharacterController {
 
+    private final CharacterRepo characterRepo;
+
+    public CharacterController(CharacterRepo characterRepo) {
+        this.characterRepo = characterRepo;
+    }
+
     @GetMapping
     public List<Character> getCharacters() {
-        return List.of(
-                new Character("1", "Asterix", 35, "Warrior"),
-                new Character("2", "Obelix", 35, "Supplier"),
-                new Character("3", "Miraculix", 60, "Druid"),
-                new Character("4", "Majestix", 60, "Chief"),
-                new Character("5", "Troubadix", 25, "Bard"),
-                new Character("6", "Gutemine", 35, "Chiefs Wife"),
-                new Character("7", "Idefix", 5, "Dog"),
-                new Character("8", "Geriatrix", 70, "Retiree"),
-                new Character("9", "Automatix", 35, "Smith"),
-                new Character("10", "Grockelix", 35, "Fisherman")
-        );
+        return characterRepo.findAll();
+    }
+
+    @PostMapping
+    public Character createCharacter(@RequestBody String value) {
+        String uuid = UUID.randomUUID().toString();
+        String[] values = value.split("&");
+        Character character = new Character(uuid, values[0].split("=")[1], Integer.parseInt(values[1].split("=")[1]), values[2].split("=")[1]);
+        return characterRepo.save(character);
+    }
+
+    @GetMapping("{id}")
+    public Character getCharacterById(@PathVariable String id) {
+        return characterRepo.findById(id).get();
+    }
+
+    @DeleteMapping("/{id}")
+    public String deleteCharacter(@PathVariable String id) {
+        characterRepo.deleteById(id);
+        return "successfully deleted";
     }
 }
