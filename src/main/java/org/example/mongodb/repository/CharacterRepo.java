@@ -5,16 +5,12 @@ import org.springframework.stereotype.Repository;
 import org.example.mongodb.models.Character;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface CharacterRepo extends MongoRepository<Character,String> {
-    
-    List<Character> getCharactersByName(String name);
 
     Character getCharacterById(String id);
 
-    Character getCharactersByProfession(String profession);
-
-    Character getCharactersByAge(int age);
-
+    List<Character> getCharactersByAgeLessThanEqual(int age);
 }

@@ -1,43 +1,87 @@
 package org.example.mongodb.controllers;
-
-import jakarta.websocket.server.PathParam;
-import org.example.mongodb.repository.CharacterRepo;
+import org.example.mongodb.dto.CharacterDTO;
+import org.example.mongodb.exceptions.NotFoundException;
+import org.example.mongodb.services.CharacterService;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.example.mongodb.models.Character;
+import org.springframework.web.server.ResponseStatusException;
+import org.example.mongodb.exceptions.BadRequestException;
+
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/asterix/characters")
 public class CharacterController {
 
-    private final CharacterRepo characterRepo;
+    private final CharacterService characterService;
 
-    public CharacterController(CharacterRepo characterRepo) {
-        this.characterRepo = characterRepo;
+    public CharacterController(CharacterService characterService) {
+        this.characterService = characterService;
     }
 
     @GetMapping
-    public List<Character> getCharacters() {
-        return characterRepo.findAll();
+    public List<Character> getAllCharacters() {
+        try {
+            return characterService.getCharacters();
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error");
+        }
+
     }
 
     @PostMapping
-    public Character createCharacter(@RequestBody String value) {
-        String uuid = UUID.randomUUID().toString();
-        String[] values = value.split("&");
-        Character character = new Character(uuid, values[0].split("=")[1], Integer.parseInt(values[1].split("=")[1]), values[2].split("=")[1]);
-        return characterRepo.save(character);
+    public Character createCharacter(@RequestBody CharacterDTO characterDTO) {
+        try {
+            return characterService.createCharacter(characterDTO);
+        } catch (BadRequestException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error");
+        }
+
     }
 
     @GetMapping("{id}")
     public Character getCharacterById(@PathVariable String id) {
-        return characterRepo.findById(id).get();
+        Character character = characterService.getCharacterById(id);
+        if (character == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Character Not Found");
+        } else {
+            return characterService.getCharacterById(id);
+        }
     }
 
     @DeleteMapping("/{id}")
-    public String deleteCharacter(@PathVariable String id) {
-        characterRepo.deleteById(id);
-        return "successfully deleted";
+    public void deleteCharacter(@PathVariable String id) {
+        try {
+            characterService.deleteCharacter(id);
+            throw new ResponseStatusException(HttpStatus.NO_CONTENT);
+        } catch (NotFoundException e) {
+          throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PutMapping("/{id}")
+    public Character putCharacter(@RequestBody Character character) {
+
+        try {
+            return characterService.putCharacterById(character);
+        } catch (NotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,  e.getMessage());
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/age/let/{age}")
+    public List<Character> getCharactersByAge(@PathVariable int age) {
+        try {
+            return characterService.getCharacters(age);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error");
+        }
     }
 }
