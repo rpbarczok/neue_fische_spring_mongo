@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -32,7 +33,7 @@ public class CharacterService {
 
     public Character createCharacter(CharacterDTO characterDTO) throws BadRequestException {
         try {
-            Character character = new Character(idService.randomId(), characterDTO.name(), characterDTO.age(), characterDTO.profession());
+            Character character = new Character(idService.randomId(), characterDTO.name(), characterDTO.age(), characterDTO.profession(), Instant.now());
             try {
                 return characterRepo.save(character);
             } catch (Exception ex) {

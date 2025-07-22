@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.Instant;
+
 @Data
 @AllArgsConstructor
 @Builder
@@ -12,4 +14,5 @@ public class Character {
     private String name;
     private int age;
     private String profession;
+    private Instant createdAt;
 }

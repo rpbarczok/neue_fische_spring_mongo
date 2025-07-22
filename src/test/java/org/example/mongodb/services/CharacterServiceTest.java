@@ -8,17 +8,19 @@ import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.Instant;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class CharacterServiceTest {
-    static Character asterix = new Character("1", "Asterix", 35,"Warrior");
-    static Character asterixUpdated = new Character("1", "Asterix", 40,"Warrior");
-    static Character obelix = new Character("2","Obelix", 35, "Supplier");
+    static Instant instant = Instant.now();
+    static Character asterix = new Character("1", "Asterix", 35,"Warrior", instant);
+    static Character asterixUpdated = new Character("1", "Asterix", 40,"Warrior", instant);
+    static Character obelix = new Character("2","Obelix", 35, "Supplier", instant);
     static CharacterDTO newCharacter = new CharacterDTO("Falballa", 28, "CEO");
-    static Character falballa = new Character ("3","Falballa", 28, "CEO");
+    static Character falballa = new Character ("3","Falballa", 28, "CEO", instant);
     static List<Character> characters = List.of(asterix,obelix);
     static List<Character> emptyList = List.of();
     @Test
@@ -53,6 +55,8 @@ class CharacterServiceTest {
 
     @Test
     void createCharacter_returns_new_character() {
+        mockStatic(Instant.class);
+        when(Instant.now()).thenReturn(instant);
         CharacterRepo mockCharacterRepo = Mockito.mock(CharacterRepo.class);
         IdService mockIdService = Mockito.mock(IdService.class);
         CharacterService characterService = new CharacterService(mockCharacterRepo, mockIdService);
@@ -69,6 +73,7 @@ class CharacterServiceTest {
         }
 
     }
+
 
     @Test
     void getCharacterById_returns_character() {
