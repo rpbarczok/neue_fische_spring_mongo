@@ -44,12 +44,19 @@ public class CharacterController {
 
     @GetMapping("{id}")
     public Character getCharacterById(@PathVariable String id) {
-        Character character = characterService.getCharacterById(id);
-        if (character == null) {
+        try {
+            Character character = characterService.getCharacterById(id);
+            if (character == null) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Character Not Found");
+            } else {
+                return characterService.getCharacterById(id);
+            }
+        } catch (NotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Character Not Found");
-        } else {
-            return characterService.getCharacterById(id);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error");
         }
+
     }
 
     @DeleteMapping("/{id}")

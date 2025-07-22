@@ -1,9 +1,12 @@
 package org.example.mongodb.services;
 
+import org.example.mongodb.dto.CharacterDTO;
 import org.example.mongodb.repository.CharacterRepo;
 import org.junit.jupiter.api.Test;
 import org.example.mongodb.models.Character;
 import org.mockito.Mockito;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -12,7 +15,10 @@ import static org.mockito.Mockito.*;
 
 class CharacterServiceTest {
     static Character asterix = new Character("1", "Asterix", 35,"Warrior");
+    static Character asterixUpdated = new Character("1", "Asterix", 40,"Warrior");
     static Character obelix = new Character("2","Obelix", 35, "Supplier");
+    static CharacterDTO newCharacter = new CharacterDTO("Falballa", 28, "CEO");
+    static Character falballa = new Character ("3","Falballa", 28, "CEO");
     static List<Character> characters = List.of(asterix,obelix);
     static List<Character> emptyList = List.of();
     @Test
@@ -44,17 +50,54 @@ class CharacterServiceTest {
     }
 
     @Test
-    void getCharacterById() {
+    void createCharacter_returns_new_character() {
+        CharacterRepo mockCharacterRepo = Mockito.mock(CharacterRepo.class);
+        IdService mockIdService = Mockito.mock(IdService.class);
+        CharacterService characterService = new CharacterService(mockCharacterRepo, mockIdService);
+
+        when(mockIdService.randomId()).thenReturn("3");
+        when(mockCharacterRepo.save(falballa)).thenReturn(falballa);
+
+        try {
+            Character actual = characterService.createCharacter(newCharacter);
+            assertEquals(actual,falballa);
+        } catch (Exception e) {
+            fail();
+        }
+
+    }
+
+    @Test
+    void getCharacterById_returns_character() {
         CharacterRepo mockCharacterRepo = Mockito.mock(CharacterRepo.class);
         IdService mockIdService = Mockito.mock(IdService.class);
         CharacterService characterService = new CharacterService(mockCharacterRepo, mockIdService);
 
         when(mockCharacterRepo.getCharacterById("1")).thenReturn(asterix);
 
-        Character actual = characterService.getCharacterById("1");
+        try {
+            Character actual = characterService.getCharacterById("1");
+            assertEquals(actual,asterix);
+        } catch (Exception e) {
+            fail();
+        }
 
-        assertEquals(actual,asterix);
+    }
 
+    @Test
+    void getCharacterById_throws_error_when_character_does_not_exist() {
+        CharacterRepo mockCharacterRepo = Mockito.mock(CharacterRepo.class);
+        IdService mockIdService = Mockito.mock(IdService.class);
+        CharacterService characterService = new CharacterService(mockCharacterRepo, mockIdService);
+
+        when(mockCharacterRepo.getCharacterById("1")).thenReturn(null);
+
+        try {
+            Character actual = characterService.getCharacterById("1");
+            fail();
+        } catch (Exception e) {
+            // success
+        }
     }
 
     @Test
@@ -91,6 +134,35 @@ class CharacterServiceTest {
 
     @Test
     void putCharacterById_updates_character() {
+        CharacterRepo mockCharacterRepo = Mockito.mock(CharacterRepo.class);
+        IdService mockIdService = Mockito.mock(IdService.class);
+        CharacterService characterService = new CharacterService(mockCharacterRepo, mockIdService);
 
+        when(mockCharacterRepo.getCharacterById("1")).thenReturn(asterix);
+        when(mockCharacterRepo.save(asterixUpdated)).thenReturn(asterixUpdated);
+
+        try {
+            Character actual = characterService.putCharacterById(asterixUpdated);
+            assertEquals(actual,asterixUpdated);
+        } catch (Exception e) {
+            fail();
+        }
+
+    }
+
+    @Test
+    void putCharacterById_throws_error_when_character_does_not_exist() {
+        CharacterRepo mockCharacterRepo = Mockito.mock(CharacterRepo.class);
+        IdService mockIdService = Mockito.mock(IdService.class);
+        CharacterService characterService = new CharacterService(mockCharacterRepo, mockIdService);
+
+        when(mockCharacterRepo.getCharacterById("1")).thenReturn(null);
+
+        try {
+            Character actual = characterService.putCharacterById(asterixUpdated);
+            fail();
+        } catch (Exception e) {
+            // success
+        }
     }
 }

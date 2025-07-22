@@ -43,8 +43,13 @@ public class CharacterService {
         }
     }
 
-    public Character getCharacterById(String id) {
-        return characterRepo.getCharacterById(id);
+    public Character getCharacterById(String id) throws NotFoundException {
+        Character character = characterRepo.getCharacterById(id);
+        if (character == null) {
+            throw new NotFoundException("Character with id " + id + " not found.");
+        } else {
+            return characterRepo.getCharacterById(id);
+        }
     }
 
     public void deleteCharacter(String id) throws NotFoundException {
@@ -59,7 +64,7 @@ public class CharacterService {
     public Character putCharacterById(Character character) throws NotFoundException {
         Character existingCharacter = characterRepo.getCharacterById(character.getId());
         if  (existingCharacter != null) {
-           return characterRepo.save(existingCharacter);
+           return characterRepo.save(character);
         } else {
             throw new NotFoundException("Character with id " + character.getId() + " not Found.");
         }
