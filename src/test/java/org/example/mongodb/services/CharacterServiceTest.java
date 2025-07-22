@@ -33,6 +33,7 @@ class CharacterServiceTest {
         List<Character> actual = characterService.getCharacters();
         //Then
         assertEquals(actual,characters);
+        verify(mockCharacterRepo,times(1)).findAll();
     }
 
     @Test
@@ -47,6 +48,7 @@ class CharacterServiceTest {
         List<Character> actual = characterService.getCharacters();
         //Then
         assertEquals(actual,emptyList);
+        verify(mockCharacterRepo,times(1)).findAll();
     }
 
     @Test
@@ -61,6 +63,7 @@ class CharacterServiceTest {
         try {
             Character actual = characterService.createCharacter(newCharacter);
             assertEquals(actual,falballa);
+            verify(mockCharacterRepo,times(1)).save(falballa);
         } catch (Exception e) {
             fail();
         }
@@ -78,6 +81,7 @@ class CharacterServiceTest {
         try {
             Character actual = characterService.getCharacterById("1");
             assertEquals(actual,asterix);
+            verify(mockCharacterRepo,times(1)).getCharacterById("1");
         } catch (Exception e) {
             fail();
         }
@@ -96,6 +100,7 @@ class CharacterServiceTest {
             Character actual = characterService.getCharacterById("1");
             fail();
         } catch (Exception e) {
+            verify(mockCharacterRepo,times(1)).getCharacterById("1");
             // success
         }
     }
@@ -109,11 +114,12 @@ class CharacterServiceTest {
 
         try {
             characterService.deleteCharacter("1");
+            verify(mockCharacterRepo).deleteById("1");
         } catch (Exception e) {
             fail();
         }
 
-        verify(mockCharacterRepo).deleteById("1");
+
     }
 
     @Test
@@ -127,6 +133,7 @@ class CharacterServiceTest {
             characterService.deleteCharacter("6");
             fail();
         } catch (Exception e) {
+            verify(mockCharacterRepo,times(1)).getCharacterById("6");
             // succeed
         }
 
@@ -144,6 +151,8 @@ class CharacterServiceTest {
         try {
             Character actual = characterService.putCharacterById(asterixUpdated);
             assertEquals(actual,asterixUpdated);
+            verify(mockCharacterRepo,times(1)).getCharacterById("1");
+            verify(mockCharacterRepo,times(1)).save(asterixUpdated);
         } catch (Exception e) {
             fail();
         }
@@ -162,6 +171,7 @@ class CharacterServiceTest {
             Character actual = characterService.putCharacterById(asterixUpdated);
             fail();
         } catch (Exception e) {
+            verify(mockCharacterRepo,times(1)).getCharacterById("1");
             // success
         }
     }

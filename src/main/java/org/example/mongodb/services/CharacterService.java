@@ -48,7 +48,7 @@ public class CharacterService {
         if (character == null) {
             throw new NotFoundException("Character with id " + id + " not found.");
         } else {
-            return characterRepo.getCharacterById(id);
+            return character;
         }
     }
 
