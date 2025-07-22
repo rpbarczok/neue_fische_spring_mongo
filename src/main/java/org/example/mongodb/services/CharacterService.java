@@ -33,7 +33,7 @@ public class CharacterService {
 
     public Character createCharacter(CharacterDTO characterDTO) throws BadRequestException {
         try {
-            Character character = new Character(idService.randomId(), characterDTO.name(), characterDTO.age(), characterDTO.profession(), Instant.now());
+            Character character = new Character(idService.randomId(), characterDTO.name(), characterDTO.age(), characterDTO.profession());
             try {
                 return characterRepo.save(character);
             } catch (Exception ex) {

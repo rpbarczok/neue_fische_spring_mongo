@@ -19,5 +19,3 @@ jobs:
         cache: maven
     - name: Build with Maven
       run: mvn -B package --file pom.xml
-      env:
-        MONGO_DB_URI: ${{ secrets.MONGO_DB_URI }}
